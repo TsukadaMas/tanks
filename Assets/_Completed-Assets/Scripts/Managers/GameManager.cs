@@ -36,6 +36,9 @@ namespace Complete
             StartCoroutine (GameLoop ());
         }
 
+        public TankManager getTank(int tankNum) {
+            return m_Tanks[tankNum];
+        }
 
         private void SpawnAllTanks()
         {

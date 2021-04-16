@@ -2,8 +2,7 @@ using UnityEngine;
 
 namespace Complete
 {
-    public class ShellExplosion : MonoBehaviour
-    {
+    public class ShellExplosion : MonoBehaviour {
         public LayerMask m_TankMask;                        // Used to filter what the explosion affects, this should be set to "Players".
         public ParticleSystem m_ExplosionParticles;         // Reference to the particles that will play on explosion.
         public AudioSource m_ExplosionAudio;                // Reference to the audio that will play on explosion.
@@ -11,6 +10,7 @@ namespace Complete
         public float m_ExplosionForce = 1000f;              // The amount of force added to a tank at the centre of the explosion.
         public float m_MaxLifeTime = 2f;                    // The time in seconds before the shell is removed.
         public float m_ExplosionRadius = 5f;                // The maximum distance away from the explosion tanks can be and are still affected.
+        public int parent;                             //this player who shot the bullet
 
 
         private void Start ()
@@ -20,13 +20,19 @@ namespace Complete
         }
 
 
-        private void OnTriggerEnter (Collider other)
+        public void OnTriggerEnter (Collider other)
         {
             if (other.gameObject.tag == "Health") {
-                //current problem is that the bullet is effecting the other object not the parent
-                //TankHealth targetHealth = gameObject.GetComponentInParent<TankHealth>();
-                //targetHealth.AddHealth();
-                Debug.Log(gameObject.transform.parent);
+                TankManager tankThatHitHealth = GameObject.Find("GameManager").GetComponent<GameManager>().getTank(parent-1);
+                TankHealth targetHealth = tankThatHitHealth.m_Instance.GetComponent<TankHealth>();
+                targetHealth.AddHealth();
+                Destroy(other.gameObject);
+            }
+            
+            if (other.gameObject.tag == "ExtraDamage") {
+                TankManager tankThatHitMultiplier = GameObject.Find("GameManager").GetComponent<GameManager>().getTank(parent - 1);
+                TankShooting targetShot = tankThatHitMultiplier.m_Instance.GetComponent<TankShooting>();
+                Debug.Log("hit");
             }
             else {// Collect all the colliders in a sphere from the shell's current position to a radius of the explosion radius.
                 Collider[] colliders = Physics.OverlapSphere(transform.position, m_ExplosionRadius, m_TankMask);
