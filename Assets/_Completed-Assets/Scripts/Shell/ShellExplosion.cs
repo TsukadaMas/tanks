@@ -11,8 +11,6 @@ namespace Complete
         public float m_MaxLifeTime = 2f;                    // The time in seconds before the shell is removed.
         public float m_ExplosionRadius = 5f;                // The maximum distance away from the explosion tanks can be and are still affected.
         public int parent;                             //this player who shot the bullet
-
-
         private void Start ()
         {
             // If it isn't destroyed by then, destroy the shell after it's lifetime.
@@ -32,7 +30,8 @@ namespace Complete
             if (other.gameObject.tag == "ExtraDamage") {
                 TankManager tankThatHitMultiplier = GameObject.Find("GameManager").GetComponent<GameManager>().getTank(parent - 1);
                 TankShooting targetShot = tankThatHitMultiplier.m_Instance.GetComponent<TankShooting>();
-                Debug.Log("hit");
+                targetShot.isInMulitplier = true;
+                Destroy(other.gameObject);
             }
             else {// Collect all the colliders in a sphere from the shell's current position to a radius of the explosion radius.
                 Collider[] colliders = Physics.OverlapSphere(transform.position, m_ExplosionRadius, m_TankMask);
@@ -57,10 +56,10 @@ namespace Complete
                         continue;
 
                     // Calculate the amount of damage the target should take based on it's distance from the shell.
-                    float damage = 1;
 
                     // Deal this damage to the tank.
-                    targetHealth.TakeDamage(damage);
+                    targetHealth.TakeDamage(m_MaxDamage);
+                    
                 }
             }
 
@@ -83,25 +82,5 @@ namespace Complete
             Destroy (gameObject);
         }
 
-
-        private float CalculateDamage (Vector3 targetPosition)
-        {
-            // Create a vector from the shell to the target.
-            Vector3 explosionToTarget = targetPosition - transform.position;
-
-            // Calculate the distance from the shell to the target.
-            float explosionDistance = explosionToTarget.magnitude;
-
-            // Calculate the proportion of the maximum distance (the explosionRadius) the target is away.
-            float relativeDistance = (m_ExplosionRadius - explosionDistance) / m_ExplosionRadius;
-
-            // Calculate damage as this proportion of the maximum possible damage.
-            float damage = relativeDistance * m_MaxDamage;
-
-            // Make sure that the minimum damage is always 0.
-            damage = Mathf.Max (0f, damage);
-
-            return damage;
-        }
     }
 }

@@ -197,6 +197,7 @@ MonoBehaviour:
   m_ExplosionForce: 1000
   m_MaxLifeTime: 2
   m_ExplosionRadius: 5
+  parent: 0
 --- !u!136 &8249311424546509023
 CapsuleCollider:
   m_ObjectHideFlags: 0

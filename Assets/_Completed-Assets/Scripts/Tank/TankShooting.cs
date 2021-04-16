@@ -22,6 +22,7 @@ namespace Complete
         private float m_ChargeSpeed;                // How fast the launch force increases, based on the max charge time.
         private bool m_Fired;                       // Whether or not the shell has been launched with this button press.
         private GameObject bullet;                   //when the bullet is created we need to referece to it so that we can call a trigger
+        public bool isInMulitplier;
 
 
         private void OnEnable()
@@ -34,6 +35,7 @@ namespace Complete
 
         private void Start ()
         {
+            isInMulitplier = false;
             // The fire axis is based on the player number.
             m_FireButton = "Fire" + m_PlayerNumber;
 
@@ -44,39 +46,26 @@ namespace Complete
 
         private void Update ()
         {
-            // The slider should have a default value of the minimum launch force.
             m_AimSlider.value = m_MinLaunchForce;
-
-            // If the max force has been exceeded and the shell hasn't yet been launched...
             if (m_CurrentLaunchForce >= m_MaxLaunchForce && !m_Fired)
             {
-                // ... use the max force and launch the shell.
                 m_CurrentLaunchForce = m_MaxLaunchForce;
                 Fire ();
             }
-            // Otherwise, if the fire button has just started being pressed...
             else if (Input.GetButtonDown (m_FireButton))
             {
-                // ... reset the fired flag and reset the launch force.
                 m_Fired = false;
                 m_CurrentLaunchForce = m_MinLaunchForce;
-
-                // Change the clip to the charging clip and start it playing.
                 m_ShootingAudio.clip = m_ChargingClip;
                 m_ShootingAudio.Play ();
             }
-            // Otherwise, if the fire button is being held and the shell hasn't been launched yet...
             else if (Input.GetButton (m_FireButton) && !m_Fired)
             {
-                // Increment the launch force and update the slider.
                 m_CurrentLaunchForce += m_ChargeSpeed * Time.deltaTime;
-
                 m_AimSlider.value = m_CurrentLaunchForce;
             }
-            // Otherwise, if the fire button is released and the shell hasn't been launched yet...
             else if (Input.GetButtonUp (m_FireButton) && !m_Fired)
             {
-                // ... launch the shell.
                 Fire ();
             }
         }
@@ -89,6 +78,12 @@ namespace Complete
 
             bullet = Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation);
             bullet.GetComponent<ShellExplosion>().parent = m_PlayerNumber;
+            if(isInMulitplier == true) {
+                bullet.GetComponent<ShellExplosion>().m_MaxDamage = 3;
+            }
+            else {
+                bullet.GetComponent<ShellExplosion>().m_MaxDamage = 1;
+            }
             // Create an instance of the shell and store a reference to it's rigidbody.
             Rigidbody shellInstance = bullet.GetComponent<Rigidbody>();
             Debug.Log(bullet.GetComponent<ShellExplosion>().m_MaxDamage);    
@@ -102,6 +97,7 @@ namespace Complete
 
             // Reset the launch force.  This is a precaution in case of missing button events.
             m_CurrentLaunchForce = m_MinLaunchForce;
+            isInMulitplier = false;
         }
     }
 }
